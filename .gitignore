@@ -1,0 +1,12 @@
+.idea
+.idea/
+.DS_Store
+node_modules/
+.project
+app/dist
+app/dist/*
+src/config/*.tmp
+src/config/env.js
+/index.html
+/index_prod.html
+/app.asar
