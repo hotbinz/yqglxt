@@ -33,7 +33,7 @@
             </Dropdown>     
         </Header>
         <Content>
-            <Table :height="tableHeight" :columns="columns" :data="data"></Table>
+            <Table :height="tableHeight" :columns="getCloumn" :data="data"></Table>
         </Content>
         <Footer class="layout-footer"><Page :total="40" size="small" show-total></Page></Footer>
     </Layout>
@@ -43,68 +43,12 @@
         data () {
             return {
                 tableHeight : document.documentElement.clientHeight - 195,
-                columns: [
-                    {
-                        title: 'Name',
-                        key: 'name'
-                    },
-                    {
-                        title: 'Age',
-                        key: 'age'
-                    },
-                    {
-                        title: 'Address',
-                        key: 'address'
-                    }
-                ],
                 data: [
                     {
                         name: 'John Brown',
                         age: 18,
                         address: 'New York No. 1 Lake Park',
                         date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        date: '2016-10-02'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        date: '2016-10-04'
-                    },
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        date: '2016-10-02'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        date: '2016-10-04'
                     }
                 ]
             }
@@ -131,6 +75,68 @@
                         {key:"留言",value:"reply",icon:"chatbox"}
                     ]
                 }
+            },
+            getCloumn() {
+                var type = this.$route.params.type;
+                var cname = (type == "twitter") ? "推文内容" : "留言内容";
+                var cloumnjson = [{
+                        title: '任务ID',
+                        key: 'id',
+                        width: '60'
+                    },{
+                        title: '任务类型',
+                        key: 'type',
+                        width: '85'
+                    },{
+                        title: '任务名称',
+                        key: 'name',
+                        width: '130'
+                    },{
+                        title: cname,
+                        key: 'content'
+                    },{
+                        title: '执行帐号',
+                        key: 'account',
+                        width: '90'
+                    },{
+                        title: '任务状态',
+                        key: 'status',
+                        width: '90'
+                    },{
+                        title: '执行时间',
+                        key: 'time',
+                        width: '90'
+                    }];
+                if(type == "youtube") {
+                    cloumnjson.push({
+                        title: '点赞方式',
+                        key: 'rate',
+                        width: '90'
+                    });
+                }            
+                cloumnjson.push({
+                        title: '操作',
+                        key: 'show_more',
+                        width: '90px',
+                        render: (h, params) => {
+                            return h('Button', {
+                                props: {
+                                    type: 'text',
+                                    size: 'small'
+                                },
+                                on: {
+                                    click: () => {
+                                        let argu = { order_id: params.row.order_id };
+                                        this.$router.push({
+                                            name: 'order-info',
+                                            params: argu
+                                        });
+                                    }
+                                }
+                            }, '详情');
+                        }
+                    });    
+                return cloumnjson;
             }
         },
         methods :{

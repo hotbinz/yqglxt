@@ -8,6 +8,10 @@
     margin:auto;
     float:initial;
 }
+.ivu-table-header .ivu-table-cell{
+    padding-left:8px;
+    padding-right:8px;
+}
 </style>
 <template>
 <div class="layout" style="height:100%;">

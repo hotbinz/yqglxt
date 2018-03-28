@@ -8,11 +8,11 @@
     text-align: center;
 }
 .ivu-card{
-    width:300px;
-    height:200px;
+    width:190px;
+    height:130px;
     float: left;
-    margin-right:20px;
-    margin-bottom:20px;
+    margin-right:15px;
+    margin-bottom:15px;
 }
 </style>
 <template>
