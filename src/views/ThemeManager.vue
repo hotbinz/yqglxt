@@ -148,7 +148,18 @@
             const that = this;
             window.onresize = () => {
                 that.tableHeight = document.documentElement.clientHeight - 175
-            }            
+            }    
+            //先登录再取
+            this.axios.post("/login.html",{username:'admin@ovio.com',password: 'Ovio123<>?'}).then((response)=>{
+                if(response.data.result == 1) {
+                    this.axios.get("/theme/twitter/list.html?size=20&type=json").then((gdata)=>{
+                        console.info(gdata.data);  
+                    });
+                }                
+            }).catch(function (response) {
+                console.log(response);
+            });
+            
         },
         methods:{
             NewTwitterTheme() {
