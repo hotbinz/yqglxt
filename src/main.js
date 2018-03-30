@@ -12,7 +12,7 @@ import 'iview/dist/styles/iview.css';
 
 Vue.use(VueRouter);
 Vue.use(iView);
-axios.defaults.baseURL = 'http://119.28.193.146/';
+axios.defaults.baseURL = '/api';//'http://119.28.193.146/';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 Vue.prototype.axios = axios;
 
