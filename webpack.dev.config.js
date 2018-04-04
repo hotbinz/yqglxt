@@ -35,8 +35,9 @@ module.exports = merge(webpackBaseConfig, {
     devServer: {
         proxy: {
             '/api/*': {
-                target: 'http://119.28.193.146',
-                changeOrigin: true
+                target: 'http://119.28.193.146/',
+                changeOrigin: true,
+                pathRewrite: {'^/api' : '/'},
               }
          }
     },

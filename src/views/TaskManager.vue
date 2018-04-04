@@ -43,14 +43,7 @@
         data () {
             return {
                 tableHeight : document.documentElement.clientHeight - 195,
-                data: [
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    }
-                ]
+                data: []
             }
         },
         mounted() {
@@ -58,6 +51,7 @@
             window.onresize = () => {
                 that.tableHeight = document.documentElement.clientHeight - 195
             };         
+            this.getList();
         },
         computed:{
             getNewBtnAry() {
@@ -140,6 +134,12 @@
             }
         },
         methods :{
+            getList() {
+                this.axios.get("/task/list_twitter.html?size=0&size=25").then((response)=>{
+                    this.total = response.data.total;
+                    this.data = response.data.datas;
+                });
+            },
             NewEvent(item) {
                 var type = this.$route.params.type;
                 window.open("#/New/"+type+"Task?type=" + item,"modal" ,"width=500,height=500,resizable=false");
