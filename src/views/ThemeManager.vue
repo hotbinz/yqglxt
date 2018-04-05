@@ -68,11 +68,13 @@
                     {
                         title: 'ID',
                         key: 'id',
+                        align: 'center',
                         width :'50'
                     },
                     {
                         title: '发布者',
                         key: 'author_name',
+                        align: 'center',
                         width :'120',
                         render (h, column) {
                             return [
@@ -88,6 +90,7 @@
                     {
                         title: '推文内容',
                         key: 'text',
+                        align: 'center',
                         render:(h,column) => {
                             return h('a',{
                                 domProps:{
@@ -101,16 +104,19 @@
                     {
                         title: '创建时间',
                         key: 'create_at',
+                        align: 'center',
                         width :'110'
                     },
                     {
                         title: '点赞数',
                         key: 'favorite_count',
+                        align: 'center',
                         width :'80'                    
                     },
                     {
                         title: '转推数',
                         key: 'retweet_count',
+                        align: 'center',
                         width :'80',
                     },
                     {
@@ -118,13 +124,19 @@
                         key: 'show_more',
                         align: 'center',
                         width :'160px',
-                        render: (h, params) => {
+                        render: (h, column) => {
                             return [
                                     h('Button', {
                                         props: {
                                             type: 'success',
                                             shape: 'circle',
-                                            size:"small"
+                                            size: "small",
+                                            loading: this.data[column.index].syncing
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.syncTheme(column.index,column.row.url)
+                                            }
                                         }
                                     }, '同步'),
                                     h('Button', {
@@ -138,7 +150,7 @@
                                         },
                                         on: {
                                             click: () => {
-                                                this.removeTheme(params.index,params.row.url)                                                
+                                                this.removeTheme(column.index,column.row.url)                                                
                                             },
                                         }
                                     }, '删除')
@@ -182,6 +194,25 @@
             },
             show() {
 
+            },
+            //同步主题
+            syncTheme(index, url) {
+                this.$set(this.data[index],'syncing', true);
+                this.axios.post("/theme/twitter/sync.html",{"url":url}).then((response)=>{
+                    this.$set(this.data[index],'syncing', false);
+                    if(response.data.result == 1) {
+                        this.$Notice.success({
+                            duration:2,
+                            title: response.data.msg
+                        });
+                    }
+                    else {
+                        this.$Notice.error({
+                            duration:2,
+                            title: response.data.msg
+                        });
+                    }                    
+                }); 
             },
             //删除主题
             removeTheme(index, url) {
