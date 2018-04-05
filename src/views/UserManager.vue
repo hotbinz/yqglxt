@@ -173,7 +173,7 @@
                     {
                         this.modal_delete = false;    
                         this.modal_loading = false;
-                        this.data.splice(index, 1);
+                        this.data.splice(this.$Modal.index, 1);
                     }                    
                 })
             }

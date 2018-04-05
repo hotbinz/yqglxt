@@ -39,6 +39,19 @@
             <Table :height="tableHeight" :loading="loading" :columns="columns" :data="data"></Table>
         </Content>
         <Footer class="layout-footer"><Page :total="total" size="small" show-total></Page></Footer>
+        <Modal v-model="modal_delete" width="260">
+            <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="information-circled"></Icon>
+                <span>删除确认</span>
+            </p>
+            <div style="text-align:center">
+                <p>真的要删除这个Twitter主题吗？</p>
+                <p>Will you delete it?</p>
+            </div>
+            <div slot="footer">
+                <Button type="error" size="large" long :loading="modal_loading" @click="ActionDel">删除</Button>
+            </div>
+        </Modal>
     </Layout>
 </template>
 <script>
@@ -48,6 +61,8 @@
                 tableHeight : document.documentElement.clientHeight - 175,
                 searchval:'',
                 loading: true,
+                modal_delete: false,
+                modal_loading: false,
                 total:0,
                 columns: [
                     {
@@ -103,7 +118,7 @@
                         key: 'show_more',
                         align: 'center',
                         width :'160px',
-                        render (h) {
+                        render: (h, params) => {
                             return [
                                     h('Button', {
                                         props: {
@@ -120,6 +135,11 @@
                                             type: 'error',
                                             shape: 'circle',
                                             size:"small"
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.removeTheme(params.index,params.row.url)                                                
+                                            },
                                         }
                                     }, '删除')
                             ];
@@ -163,8 +183,22 @@
             show() {
 
             },
-            remove() {
-
+            //删除主题
+            removeTheme(index, url) {
+                this.modal_delete = true; 
+                this.$Modal.index = index;
+                this.$Modal.url = url; 
+            },
+            ActionDel() {
+                this.modal_loading = true;
+                this.axios.post("/theme/twitter/delete.html",{"url":this.$Modal.url}).then((response)=>{
+                    if(response.data.result == 1)
+                    {
+                        this.modal_delete = false;    
+                        this.modal_loading = false;
+                        this.data.splice(this.$Modal.index, 1);
+                    }                    
+                })
             }
         }
     }
