@@ -23,12 +23,8 @@
             <Upload
                 ref="upload"
                 :show-upload-list="false"
-                :on-success="handleSuccess"
                 :format="['jpg','jpeg','png']"
                 :max-size="2048"
-                :on-format-error="handleFormatError"
-                :on-exceeded-size="handleMaxSize"
-                :before-upload="handleBeforeUpload"
                 type="drag"
                 action="//jsonplaceholder.typicode.com/posts/"
                 style="display: inline-block;width:58px;">
@@ -52,6 +48,8 @@
             return {
                 submiting:false,
                 uploadList: [],
+                imgName: '',
+                visible: false,
                 formItem: {
                     name: '',
                     content: '',
@@ -67,53 +65,18 @@
                         { required: true, message: '正文不能为空', trigger: 'blur' }
                     ],
                     reply_url: [
-                        { required: true, message: '推文地址不能为空', trigger: 'blur' }
+                        { required: this.$route.query.type!='create', message: '推文地址不能为空', trigger: 'blur' }
                     ]
                 },
                 TaskUser:0,
-                userList: [
-                    {
-                        value: '0',
-                        label: '随机用户'
-                    },
-                ],
+                userList: [{
+                    "label" : "随机用户",
+                     "value" : "0"
+                }],
                 model: '0'
             }
         },
         methods : {
-            handleView (name) {
-                this.imgName = name;
-                this.visible = true;
-            },
-            handleRemove (file) {
-                const fileList = this.$refs.upload.fileList;
-                this.$refs.upload.fileList.splice(fileList.indexOf(file), 1);
-            },
-            handleSuccess (res, file) {
-                file.url = 'https://o5wwk8baw.qnssl.com/7eb99afb9d5f317c912f08b5212fd69a/avatar';
-                file.name = '7eb99afb9d5f317c912f08b5212fd69a';
-            },
-            handleFormatError (file) {
-                this.$Notice.warning({
-                    title: 'The file format is incorrect',
-                    desc: 'File format of ' + file.name + ' is incorrect, please select jpg or png.'
-                });
-            },
-            handleMaxSize (file) {
-                this.$Notice.warning({
-                    title: 'Exceeding file size limit',
-                    desc: 'File  ' + file.name + ' is too large, no more than 2M.'
-                });
-            },
-            handleBeforeUpload () {
-                const check = this.uploadList.length < 5;
-                if (!check) {
-                    this.$Notice.warning({
-                        title: 'Up to five pictures can be uploaded.'
-                    });
-                }
-                return check;
-            },
             windowClose () {
                 window.close();
             },
@@ -125,12 +88,19 @@
                         let url;
                         if (type == 'create') {
                             url = "/task/ceate_twitter.html"
-                        }else if (type == 'reply') {
-                            url = "task/reply_twitter.html"
-                        }else {
-                            url = "task/forward_twitter.html"
                         }
-                        this.axios.post(url, formData).then((response)=>{
+                        else if (type == 'reply') {
+                            url = "/task/reply_twitter.html"
+                        }
+                        else {
+                            url = "/task/forward_twitter.html"
+                        }
+                        this.axios.post(url, this.formItem, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        })
+                        .then((response)=>{
                             this.submiting = false;
                             if(response.data.result == 1) {
                                 window.close();
@@ -145,6 +115,27 @@
                         this.$Message.error('表单验证失败!');
                     }
                 })
+            },
+        },
+        computed: {
+            getUserList() {
+                this.axios.get("/account/twitter/list.html").then((response)=>{
+                    var userList = new Array()
+                    var defaultUser = {
+                        "label" : "随机用户",
+                        "value" : "0"
+                    }
+                    userList.push(defaultUser)
+                    for (let user of response.data.datas) {
+                        var tmp = new Object()
+                        if (user.is_auth == 1) {
+                            tmp.label = user.nickname + '@' + user.name
+                            tmp.value = user.id
+                            userList.push(tmp)
+                        }
+                    }
+                    return userList
+                });
             }
         }
     }

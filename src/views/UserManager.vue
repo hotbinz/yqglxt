@@ -37,11 +37,11 @@
             <div class="search">
                  <Row>
                     <Col span="8">
-                        <Button type="primary" @click="NewEvent" icon="social-twitter">新建用户</Button>                        
+                        <Button type="primary" @click="NewEvent" :icon="getBtnIcon">新建用户</Button>                        
                     </Col>
                     <Col span="8" offset="8">
-                        <Input v-model="searchval">
-                            <Button slot="append" icon="ios-search">搜索</Button>
+                        <Input v-model="searchVal" @on-enter="searchTheme" placeholder="请输入搜索内容...">
+                            <Button slot="append" icon="ios-search" @click="searchTheme">搜索</Button>
                         </Input>
                     </Col>
                 </Row>
@@ -95,7 +95,7 @@
             return {
                 tableHeight : document.documentElement.clientHeight - 135,
                 total:0,
-                searchval:'',
+                searchVal:'',
                 modal_delete:false,
                 modal_loading:false,
                 data: []
@@ -106,11 +106,28 @@
             window.onresize = () => {
                 that.tableHeight = document.documentElement.clientHeight - 155
             }     
-            this.getlist();    
+            this.getList();    
+        },
+        computed: {
+            getBtnIcon() {
+                var type = this.$route.params.type;
+                if (type == "twitter") {
+                    return 'social-twitter'
+                }
+                else if (type == "youtube") {
+                    return 'social-youtube'
+                }
+
+            }
         },
         methods :{
-            getlist() {
-                this.axios.get("/account/twitter/list.html").then((response)=>{
+            getList() {
+                var type = this.$route.params.type
+                let param = ''
+                if (this.searchVal != '') {
+                    param += '?name=' + this.searchVal
+                }
+                this.axios.get("/account/"+type+"/list.html" + param).then((response)=>{
                     this.total = response.data.total;
                     this.data = response.data.datas;
                 });
@@ -121,7 +138,7 @@
                 let win = window.open("#/New/"+type+"User","modal" ,"width=550,height=360,resizable=false");
                 var that = this;
                 win.onbeforeunload = () => {
-                    that.getlist();    
+                    that.getList();    
                 };
                 
             },
@@ -169,13 +186,25 @@
             ActionDel(id, index) {
                 this.modal_loading = true;
                 this.axios.post("/account/twitter/delete.html",{"id":this.$Modal.id}).then((response)=>{
-                    if(response.data.result == 1)
-                    {
+                    if(response.data.result == 1){
                         this.modal_delete = false;    
                         this.modal_loading = false;
                         this.data.splice(this.$Modal.index, 1);
-                    }                    
+                    }
+                    else 
+                        this.$Notice.error({
+                            duration:2,
+                            title: response.data.msg
+                        });                 
                 })
+            },
+            searchTheme() {
+                this.getList()
+            }
+        },
+        watch: {
+            '$route' (to) {
+                this.getList()
             }
         }
     }

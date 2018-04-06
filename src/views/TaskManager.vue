@@ -35,16 +35,16 @@
                     </Dropdown>    
                 </Col>
                 <Col span="8" offset="8">
-                    <Input v-model="searchval">
-                        <Button slot="append" icon="ios-search">搜索</Button>
+                    <Input v-model="searchVal" @on-enter="searchTheme" placeholder="请输入搜索内容...">
+                        <Button slot="append" icon="ios-search" @click="searchTheme">搜索</Button>
                     </Input>
                 </Col>
             </Row>   
         </Header>
         <Content>
-            <Table :height="tableHeight" :columns="getCloumn" :data="data"></Table>
+            <Table :height="tableHeight" :loading="loading" :columns="getCloumn" :data="data"></Table>
         </Content>
-        <Footer class="layout-footer"><Page :total="40" size="small" show-total></Page></Footer>
+        <Footer class="layout-footer"><Page :total="page.total" size="small" show-total :current.sync="page.current" @on-change="pageChange"></Page></Footer>
     </Layout>
 </template>
 <script>
@@ -52,8 +52,15 @@
         data () {
             return {
                 tableHeight : document.documentElement.clientHeight - 195,
-                searchval:'',
-                data: []
+                loading: true,
+                searchVal:'',
+                data: [],
+                page: {
+                    total: 0,
+                    pageSize: 10,
+                    current: 1,
+                    minId: 0,
+                }
             }
         },
         mounted() {
@@ -129,6 +136,7 @@
                 cloumnjson.push({
                         title: '操作',
                         key: 'show_more',
+                        align: 'center',
                         width: '90px',
                         render: (h, params) => {
                             return h('Button', {
@@ -152,15 +160,36 @@
             }
         },
         methods :{
-            getList() {
-                this.axios.get("/task/list_twitter.html?size=0&size=25").then((response)=>{
-                    this.total = response.data.total;
+            getList(type) {
+                var themType = this.$route.params.type
+                this.loading = true
+                let param = 'size=' + this.page.pageSize + '&start=' + this.page.current
+                if (this.searchVal != '') {
+                    param += '&name=' + this.searchVal
+                }
+                this.axios.get("/task/list_"+themType+".html?" + param).then((response)=>{
+                    this.loading = false
+                    // 翻页操作，不更新total
+                    if (type != 'paging') {
+                        this.page.total = response.data.total;
+                    }
                     this.data = response.data.datas;
                 });
             },
             NewEvent(item) {
                 var type = this.$route.params.type;
                 window.open("#/New/"+type+"Task?type=" + item,"modal" ,"width=500,height=500,resizable=false");
+            },
+            pageChange(page) {
+                this.getList('paging')
+            },
+            searchTheme() {
+               this.getList('searching')
+            }
+        },
+        watch: {
+            '$route' (to) {
+                this.getList()
             }
         }
     }

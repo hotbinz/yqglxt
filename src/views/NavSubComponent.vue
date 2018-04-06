@@ -17,7 +17,7 @@
 <div class="layout" style="height:100%;">
     <Tabs class="nav-sub-tabs" :value="active"  @on-click="NavSubSelect">
         <TabPane label="Twitter" name="twitter" icon="social-twitter"></TabPane>
-        <TabPane label="Youtube" name="youtube" icon="social-facebook" @on-click="NavSubSelect"></TabPane>
+        <TabPane label="Youtube" name="youtube" icon="social-youtube" @on-click="NavSubSelect"></TabPane>
     </Tabs>    
     <router-view></router-view>
 </div>

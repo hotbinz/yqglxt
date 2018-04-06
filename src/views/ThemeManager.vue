@@ -29,8 +29,8 @@
                     <Button type="primary" @click="NewTwitterTheme" icon="social-twitter">新建Twitter主题</Button>
                 </Col>
                 <Col span="8" offset="8">
-                    <Input v-model="searchval">
-                        <Button slot="append" icon="ios-search">搜索</Button>
+                    <Input v-model="searchVal" @on-enter="searchTheme" placeholder="请输入搜索内容...">
+                        <Button slot="append" icon="ios-search" @click="searchTheme">搜索</Button>
                     </Input>
                 </Col>
             </Row>            
@@ -38,7 +38,7 @@
         <Content>
             <Table :height="tableHeight" :loading="loading" :columns="columns" :data="data"></Table>
         </Content>
-        <Footer class="layout-footer"><Page :total="total" size="small" show-total></Page></Footer>
+        <Footer class="layout-footer"><Page :total="page.total" size="small" show-total :current.sync="page.current" @on-change="pageChange"></Page></Footer>
         <Modal v-model="modal_delete" width="260">
             <p slot="header" style="color:#f60;text-align:center">
                 <Icon type="information-circled"></Icon>
@@ -59,11 +59,10 @@
         data () {
             return {
                 tableHeight : document.documentElement.clientHeight - 175,
-                searchval:'',
+                searchVal:'',
                 loading: true,
                 modal_delete: false,
                 modal_loading: false,
-                total:0,
                 columns: [
                     {
                         title: 'ID',
@@ -159,7 +158,13 @@
                     }
 
                 ],
-                data: []
+                data: [],
+                page: {
+                    total: 0,
+                    pageSize: 10,
+                    current: 1,
+                    minId: 0,
+                }
             }
         },
         mounted() {
@@ -171,14 +176,25 @@
             
         },
         methods:{
-            getList() {
+            getList(type) {
                 //先登录再取
                 this.axios.post("/login.html",{username:'admin@ovio.com',password: 'Ovio123<>?'}).then((response)=>{
                     if(response.data.result == 1) {
-                        this.axios.get("/theme/twitter/list.html?size=20&type=json").then((gdata)=>{
+                        let param = 'size=' + this.page.pageSize + '&type=json'
+                        if (this.page.current != 1) {
+                            param += '&last=' + this.page.minId
+                        }
+                        if (this.searchVal != '') {
+                            param += '&name=' + this.searchVal
+                        }
+                        this.axios.get("/theme/twitter/list.html?"+param).then((gdata)=>{
                             this.loading = false;
-                            this.total = gdata.data.total;
+                            // 翻页操作，不更新total
+                            if (type != 'paging') {
+                                this.page.total = gdata.data.total;
+                            }
                             this.data = gdata.data.datas;
+                            this.page.minId = this.page.total > 0?this.data[this.data.length - 1].id : 0;
                         });
                     }                
                 }).catch(function (response) {
@@ -189,11 +205,8 @@
                 let win = window.open("#/New/TwitterTheme","modal" ,"width=400,height=400,resizable=false");
                 var that = this;
                 win.onbeforeunload = () => {
-                    that.getlist();    
+                   that.getList();    
                 };
-            },
-            show() {
-
             },
             //同步主题
             syncTheme(index, url) {
@@ -216,20 +229,31 @@
             },
             //删除主题
             removeTheme(index, url) {
-                this.modal_delete = true; 
-                this.$Modal.index = index;
-                this.$Modal.url = url; 
+                this.modal_delete = true
+                this.$Modal.index = index
+                this.$Modal.url = url
             },
             ActionDel() {
                 this.modal_loading = true;
                 this.axios.post("/theme/twitter/delete.html",{"url":this.$Modal.url}).then((response)=>{
-                    if(response.data.result == 1)
-                    {
-                        this.modal_delete = false;    
-                        this.modal_loading = false;
-                        this.data.splice(this.$Modal.index, 1);
+                    if(response.data.result == 1) {
+                        this.modal_delete = false    
+                        this.modal_loading = false
+                        this.data.splice(this.$Modal.index, 1)
+                    }
+                    else {
+                        this.$Notice.error({
+                            duration:2,
+                            title: response.data.msg
+                        });
                     }                    
                 })
+            },
+            pageChange(page) {
+                this.getList('paging')
+            },
+            searchTheme() {
+                this.getList('searching')
             }
         }
     }
