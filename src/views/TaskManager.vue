@@ -18,19 +18,28 @@
 </style>
 <template>
     <Layout class="layout">
-        <Header class="layout-header">      
-            <Dropdown>
-                <Button type="primary">
-                    新建任务
-                    <Icon type="arrow-down-b"></Icon>
-                </Button>
-                <DropdownMenu slot="list">
-                    <DropdownItem v-for="item in getNewBtnAry" :key="item.value" @click.native="NewEvent(item.value)">
-                        <Icon :type="item.icon" size="14"></Icon>
-                        {{item.key}}任务
-                    </DropdownItem>
-                </DropdownMenu>
-            </Dropdown>     
+        <Header class="layout-header">   
+            <Row>
+                <Col span="8">
+                    <Dropdown>
+                        <Button type="primary">
+                            新建任务
+                            <Icon type="arrow-down-b"></Icon>
+                        </Button>
+                        <DropdownMenu slot="list">
+                            <DropdownItem v-for="item in getNewBtnAry" :key="item.value" @click.native="NewEvent(item.value)">
+                                <Icon :type="item.icon" size="14"></Icon>
+                                {{item.key}}任务
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>    
+                </Col>
+                <Col span="8" offset="8">
+                    <Input v-model="searchval">
+                        <Button slot="append" icon="ios-search">搜索</Button>
+                    </Input>
+                </Col>
+            </Row>   
         </Header>
         <Content>
             <Table :height="tableHeight" :columns="getCloumn" :data="data"></Table>
@@ -43,6 +52,7 @@
         data () {
             return {
                 tableHeight : document.documentElement.clientHeight - 195,
+                searchval:'',
                 data: []
             }
         },
@@ -76,35 +86,43 @@
                 var cloumnjson = [{
                         title: '任务ID',
                         key: 'id',
+                        align: 'center',
                         width: '60'
                     },{
                         title: '任务类型',
                         key: 'type',
+                        align: 'center',
                         width: '85'
                     },{
                         title: '任务名称',
                         key: 'name',
+                        align: 'center',
                         width: '130'
                     },{
                         title: cname,
-                        key: 'content'
+                        key: 'content',
+                        align: 'center',
                     },{
                         title: '执行帐号',
                         key: 'account',
+                        align: 'center',
                         width: '90'
                     },{
                         title: '任务状态',
                         key: 'status',
+                        align: 'center',
                         width: '90'
                     },{
                         title: '执行时间',
                         key: 'time',
+                        align: 'center',
                         width: '90'
                     }];
                 if(type == "youtube") {
                     cloumnjson.push({
                         title: '点赞方式',
                         key: 'rate',
+                        align: 'center',
                         width: '90'
                     });
                 }            
