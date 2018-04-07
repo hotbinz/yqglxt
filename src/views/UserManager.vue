@@ -40,8 +40,8 @@
                         <Button type="primary" @click="NewEvent" :icon="getBtnIcon">新建用户</Button>                        
                     </Col>
                     <Col span="8" offset="8">
-                        <Input v-model="searchVal" @on-enter="searchTheme" placeholder="请输入搜索内容...">
-                            <Button slot="append" icon="ios-search" @click="searchTheme">搜索</Button>
+                        <Input v-model="searchVal" @on-enter="searchUser" placeholder="请输入搜索内容...">
+                            <Button slot="append" icon="ios-search" @click="searchUser">搜索</Button>
                         </Input>
                     </Col>
                 </Row>
@@ -198,7 +198,11 @@
                         });                 
                 })
             },
-            searchTheme() {
+            // 更新用户
+            updateUser() {
+                
+            },
+            searchUser() {
                 this.getList()
             }
         },
