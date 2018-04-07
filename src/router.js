@@ -1,12 +1,20 @@
 var Main = (resolve) => require(['./views/Main.vue'], resolve)
 export const otherRouter = {
     path: '/',
-    redirect: '/ThemeManager',
-    component: Main
+    redirect: '/login',
+}
+export const loginRoute = {
+    path: '/login',
+    title: '登录',
+    name: 'login',
+    component:(resolve) => require(['./views/login.vue'], resolve)
 }
 export const newRoute = {
     path: "/New",
     name: "new",
+    meta: {
+        requireAuth: true,
+    },
     component:(resolve) => require(['./views/NewWindow.vue'], resolve),
     children: [
         { path: 'TwitterTheme', title: '新增主题', name: 'NewTwitterTheme', component: (resolve) => require(['./views/new/TwitterTheme.vue'], resolve) },
@@ -21,26 +29,35 @@ export const appRouter = [
         path: '/ThemeManager',
         icon: 'document-text',
         title: '主题管理',
+        meta: {
+            requireAuth: true,
+        },
         component: Main,
         children: [
-            { path: '/', title: '主题管理', name: 'ThemeManager', component: (resolve) => require(['./views/ThemeManager.vue'], resolve) }
+            { path: '/', title: '主题管理', name: 'ThemeManager', meta: {requireAuth:true}, component: (resolve) => require(['./views/ThemeManager.vue'], resolve) }
         ]
     },
     {
         path: '/TaskManager',
         component: Main,
+        meta: {
+            requireAuth: true,
+        },
         children: [
             { path: '/' ,redirect: 'twitter', component: (resolve) => require(['./views/NavSubComponent.vue'], resolve),
-            children:[{ path: ':type', title: 'twitter任务管理', name: 'TaskManager', component: (resolve) => require(['./views/TaskManager.vue'], resolve)}]
+            children:[{ path: ':type', title: 'twitter任务管理', name: 'TaskManager', meta: {requireAuth:true}, component: (resolve) => require(['./views/TaskManager.vue'], resolve)}]
             }
         ]
     },
     {
         path: '/UserManager',
         component: Main,
+        meta: {
+            requireAuth: true,
+        },
         children: [
             { path: '/' ,redirect: 'twitter', component: (resolve) => require(['./views/NavSubComponent.vue'], resolve),
-            children:[{ path: ':type', title: 'twitter用户管理', name: 'UserManager', component: (resolve) => require(['./views/UserManager.vue'], resolve)}]
+            children:[{ path: ':type', title: 'twitter用户管理', name: 'UserManager', meta: {requireAuth:true}, component: (resolve) => require(['./views/UserManager.vue'], resolve)}]
             }
         ]
     }
@@ -49,6 +66,7 @@ export const appRouter = [
 const routers = [
     newRoute,
     otherRouter,
+    loginRoute,
     ...appRouter
 ];
 export default routers;

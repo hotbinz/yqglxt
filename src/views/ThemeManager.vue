@@ -52,6 +52,16 @@
                 <Button type="error" size="large" long :loading="modal_loading" @click="ActionDel">删除</Button>
             </div>
         </Modal>
+        <Modal v-model="modal_show" width="500">
+            <p slot="header" style="color:#2db7f5;text-align:center">
+                <Icon type="information-circled"></Icon>
+                <span>主题信息</span>
+            </p>
+            <div style="text-align:center">
+                <p>真的要删除这个Twitter主题吗？</p>
+                <p>Will you delete it?</p>
+            </div>
+        </Modal>
     </Layout>
 </template>
 <script>
@@ -63,6 +73,7 @@
                 loading: true,
                 modal_delete: false,
                 modal_loading: false,
+                modal_show: false,
                 columns: [
                     {
                         title: 'ID',
@@ -122,43 +133,78 @@
                         title: '操作',
                         key: 'show_more',
                         align: 'center',
-                        width :'160px',
+                        width :'150px',
                         render: (h, column) => {
                             return [
-                                    h('Button', {
+                                    h('Button',{
+                                        style: {
+                                            color: '#57c5f7'
+                                        },
                                         props: {
-                                            type: 'success',
+                                            type: 'text',
                                             shape: 'circle',
                                             size: "small",
+                                            icon: 'ios-book',
+                                        },
+                                        attrs: {
+                                            title: '详情'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                this.showMore(column.index,column.row.id,column.row.url)
+                                            }
+                                        }
+                                    }),
+                                    h('Button', {
+                                        style: {
+                                            marginLeft: "10px",
+                                            color: '#19be6b',
+                                        },
+                                        props: {
+                                            type: 'text',
+                                            shape: 'circle',
+                                            size: "small",
+                                            icon: 'ios-loop-strong',
                                             loading: this.data[column.index].syncing
+                                        },
+                                        attrs: {
+                                            title: '同步'
                                         },
                                         on: {
                                             click: () => {
                                                 this.syncTheme(column.index,column.row.url)
                                             }
                                         }
-                                    }, '同步'),
+                                    }),
                                     h('Button', {
                                         style: {
                                             marginLeft: "10px",
+                                            color: '#ed3f14',
                                         },
                                         props: {
-                                            type: 'error',
+                                            type: 'text',
                                             shape: 'circle',
-                                            size:"small"
+                                            size:"small",
+                                            icon: 'ios-trash-outline',
+                                        },
+                                        attrs: {
+                                            title: '删除'
                                         },
                                         on: {
                                             click: () => {
                                                 this.removeTheme(column.index,column.row.url)                                                
                                             },
                                         }
-                                    }, '删除')
+                                    })
                             ];
                         }
                     }
 
                 ],
                 data: [],
+                showData: {
+
+                },
                 page: {
                     total: 0,
                     pageSize: 10,
@@ -178,10 +224,10 @@
         methods:{
             getList(type) {
                 //先登录再取
-                this.axios.post("/login.html",{username:'admin@ovio.com',password: 'Ovio123<>?'}).then((response)=>{
-                    if(response.data.result == 1) {
+                ///this.axios.post("/login.html",{username:'admin@ovio.com',password: 'Ovio123<>?'}).then((response)=>{
+                    //if(response.data.result == 1) {
                         let param = 'size=' + this.page.pageSize + '&type=json'
-                        if (this.page.current != 1) {
+                        if (type == 'paging' && this.page.current != 1) {
                             param += '&last=' + this.page.minId
                         }
                         if (this.searchVal != '') {
@@ -194,12 +240,12 @@
                                 this.page.total = gdata.data.total;
                             }
                             this.data = gdata.data.datas;
-                            this.page.minId = this.page.total > 0?this.data[this.data.length - 1].id : 0;
+                            this.page.minId = gdata.data.total > 0?this.data[this.data.length - 1].id : 0;
                         });
-                    }                
-                }).catch(function (response) {
-                    console.log(response);
-                });
+                   // }                
+                //}).catch(function (response) {
+                    //console.log(response);
+                //});
             },
             NewTwitterTheme() {
                 let win = window.open("#/New/TwitterTheme","modal" ,"width=400,height=400,resizable=false");
@@ -236,7 +282,7 @@
             ActionDel() {
                 this.modal_loading = true;
                 this.axios.post("/theme/twitter/delete.html",{"url":this.$Modal.url}).then((response)=>{
-                    if(response.data.result == 1) {
+                    if (response.data.result == 1) {
                         this.modal_delete = false    
                         this.modal_loading = false
                         this.data.splice(this.$Modal.index, 1)
@@ -254,6 +300,20 @@
             },
             searchTheme() {
                 this.getList('searching')
+            },
+            showMore(index, id, url) {
+                this.modal_show = true
+                this.axios.get("/theme/twitter/load.html?url="+url).then((response)=>{
+                    if (response.data.result == 1) {
+                        this.showData = response.data
+                    }
+                    else {
+                        this.$Notice.error({
+                            duration:2,
+                            title: response.data.msg
+                        });
+                    } 
+                });
             }
         }
     }

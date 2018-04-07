@@ -15,6 +15,9 @@
 .new-btn{
     margin-right:20px;
 }
+.a {
+    color: red;
+}
 </style>
 <template>
     <Layout class="layout">
@@ -109,6 +112,15 @@
                         title: cname,
                         key: 'content',
                         align: 'center',
+                        render:(h,column) => {
+                            return h('a',{
+                                domProps:{
+                                    href:column.row.status_url,
+                                    target:"_blank"
+                                }                                
+                            },
+                            column.row.content);
+                        }
                     },{
                         title: '执行帐号',
                         key: 'account',
@@ -118,7 +130,26 @@
                         title: '任务状态',
                         key: 'status',
                         align: 'center',
-                        width: '90'
+                        width: '90',
+                        render:(h,params) => {
+                            if (params.row.status == 200) {
+                                return h('div',{
+                                    style: {
+                                        backgroundColor: "#4ac959",
+                                        borderRadius: "2px",
+                                        color: "#fff",
+                                    }
+                                },'成功')
+                            }
+                            else 
+                                return h('div',{
+                                    style: {
+                                        backgroundColor: "#d62434",
+                                        borderRadius: "2px",
+                                        color: "#fff",
+                                    }
+                                },'失败')
+                        }
                     },{
                         title: '执行时间',
                         key: 'time',
@@ -137,23 +168,53 @@
                         title: '操作',
                         key: 'show_more',
                         align: 'center',
-                        width: '90px',
+                        width: '100px',
+                        className: 'a',
                         render: (h, params) => {
-                            return h('Button', {
-                                props: {
-                                    type: 'text',
-                                    size: 'small'
-                                },
-                                on: {
-                                    click: () => {
-                                        let argu = { order_id: params.row.order_id };
-                                        this.$router.push({
-                                            name: 'order-info',
-                                            params: argu
-                                        });
+                            let operations = [
+                                h('Button',{
+                                    style: {
+                                        color: "#4a90e2"
+                                    },
+                                    props: {
+                                        type: 'text',
+                                        shape: 'circle',
+                                        size: "small",
+                                        icon: 'social-twitter',
+                                    },
+                                    attrs: {
+                                        title: '查看结果'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            window.open(params.row.status_url)
+                                        }
                                     }
-                                }
-                            }, '详情');
+                                }) 
+                            ]
+                            if (params.row.type == 2 || params.row.type == 3) {
+                                operations.push(h('Button',
+                                    {
+                                        style: {
+                                            color: "#4a90e2"
+                                        },
+                                        props: {
+                                            type: 'text',
+                                            shape: 'circle',
+                                            size: "small",
+                                            icon: 'social-twitter-outline',
+                                        },
+                                        attrs: {
+                                            title: '查看原始推文'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                window.open(params.row.reply_url)
+                                            }
+                                        }
+                                    }))
+                            }
+                            return operations
                         }
                     });    
                 return cloumnjson;

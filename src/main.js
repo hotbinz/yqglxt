@@ -25,8 +25,21 @@ const router = new VueRouter(RouterConfig);
 
 router.beforeEach((to, from, next) => {
     //iView.LoadingBar.start();
-    Util.title(to.meta.title);
-    next();
+    if (to.matched.some(r => r.meta.requireAuth)) {
+        if (store.state.app.token) {  // 通过vuex state获取当前的token是否存在
+            Util.title(to.meta.title);
+            next();
+        }
+        else {
+            next({
+                path: '/login',
+                query: {redirect: to.fullPath}  // 将跳转的路由path作为参数，登录成功后跳转到该路由
+            })
+        }
+    }
+    else
+        Util.title(to.meta.title);
+        next();
 });
 
 router.afterEach((to, from, next) => {
