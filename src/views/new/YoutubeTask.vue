@@ -20,13 +20,13 @@
         </FormItem>
         <FormItem label="操作方式" prop="rate" :class="this.$route.query.type=='vote' ? 'show': 'hidden'">
             <RadioGroup v-model="formData.rate">
-                <Radio label="1">
+                <Radio label='1'>
                     <span>赞</span>
                 </Radio>
-                <Radio label="2">
+                <Radio label='2'>
                     <span>踩</span>
                 </Radio>
-                <Radio label="0">
+                <Radio label='0'>
                     <span>无</span>
                 </Radio>
             </RadioGroup>
@@ -48,7 +48,7 @@
                     name: '',
                     account: '0',
                     reply_url: '',
-                    rate: "1",
+                    rate: '1',
                     content: ''
                 },
                 ruleValidate: {
@@ -59,7 +59,7 @@
                         { required: this.$route.query.type=='reply', message: '正文不能为空', trigger: 'blur' }
                     ],
                     reply_url: [
-                        { required: true, message: '推文地址不能为空', trigger: 'blur' }
+                        { required: true, message: '视频地址不能为空', trigger: 'blur' }
                     ],
                     rate: [
                         { required: this.$route.query.type=='vote', message: '操作不能为空', trigger: 'change' }
@@ -71,6 +71,10 @@
                         label: '随机用户'
                     },
                 ],
+                urls: {
+                    "vote": "/task/vote_youtube.html",
+                    "reply": "task/reply_youtube.html",
+                }
             }
         },
         methods : {
@@ -82,14 +86,13 @@
                     if (valid) {
                         this.submiting = true;
                         let type = this.$route.query.type
-                        let url;
-                        if (type == 'vote') {
-                            url = "/task/vote_youtube.html"
-                        }
-                        else {
-                            url = "task/reply_youtube.html"
-                        }
-                        this.axios.post(url, this.formData).then((response)=>{
+                        let data = new FormData();
+                        data.append('name', this.formData.name);
+                        data.append('content', this.formData.content);
+                        data.append('rate', this.formData.rate);
+                        data.append('account', this.formData.account);
+                        data.append('reply_url', this.formData.reply_url);
+                        this.axios.post(this.urls[type], data).then((response)=>{
                             this.submiting = false;
                             if(response.data.result == 1) {
                                 window.close();

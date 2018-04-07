@@ -39,7 +39,7 @@
                             <Icon type="ios-locked-outline" slot="append"></Icon>
                         </Input>
                     </FormItem>
-                    <FormItem>
+                    <FormItem style="text-align:right;">
                         <Button type="primary" @click="handleLogin('loginForm')">Signin</Button>
                     </FormItem>
                 </Form>

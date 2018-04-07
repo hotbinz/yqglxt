@@ -66,7 +66,7 @@
                         { required: true, message: 'consumer_key不能为空', trigger: 'blur' }
                     ],
                     consumer_secret: [
-                        { required: true, message: 'consumer_secret', trigger: 'blur' }
+                        { required: true, message: 'consumer_secret不能为空', trigger: 'blur' }
                     ],
                     access_token: [
                         { required: true, message: 'access_token不能为空', trigger: 'blur' }

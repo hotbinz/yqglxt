@@ -47,6 +47,25 @@ router.afterEach((to, from, next) => {
     window.scrollTo(0, 0);
 });
 
+// http response 拦截器
+axios.interceptors.response.use(
+    response => {
+        return response;
+    },
+    error => {
+        if (error.response) {
+            switch (error.response.status) {
+                case 404:
+                    store.commit('removeToken');
+                    router.replace({
+                        path: '/login',
+                        query: {redirect: router.currentRoute.fullPath}
+                    })
+            }
+        }
+        return Promise.reject(error.response.data)   // 返回接口返回的错误信息
+    });
+
 new Vue({
     el: '#app',
     router: router,

@@ -112,15 +112,6 @@
                         title: cname,
                         key: 'content',
                         align: 'center',
-                        render:(h,column) => {
-                            return h('a',{
-                                domProps:{
-                                    href:column.row.status_url,
-                                    target:"_blank"
-                                }                                
-                            },
-                            column.row.content);
-                        }
                     },{
                         title: '执行帐号',
                         key: 'account',
@@ -161,7 +152,17 @@
                         title: '点赞方式',
                         key: 'rate',
                         align: 'center',
-                        width: '90'
+                        width: '90',
+                        render: (h, params) => {
+                            if (params.row.rate == 0) {
+                                return h('div','取消')
+                            }
+                            else if (params.row.rate == 1) {
+                                return h('div','点赞')
+                            }
+                            else
+                                return h('div','踩')
+                        }
                     });
                 }            
                 cloumnjson.push({
@@ -250,6 +251,7 @@
         },
         watch: {
             '$route' (to) {
+                this.data = []
                 this.getList()
             }
         }
