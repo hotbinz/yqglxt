@@ -14,7 +14,7 @@
 .layout-logo{
     width: 180px;
     height: 16px;
-    color:black;
+    color:white;
     float: left;
     position: relative;
     top: 10px;
@@ -43,9 +43,6 @@
                     <div class="layout-logo">新建</div>
                     <div class="layout-button">
                         <ButtonGroup>
-                            <Button type="text" style="color:#FFF;-webkit-app-region: no-drag;">
-                                <Icon type="minus-round"></Icon>
-                            </Button>
                             <Button type="primary" style="color:#FFF;-webkit-app-region: no-drag; border-radius: 0" @click="windowClose">
                                 <Icon type="close-round"></Icon>
                             </Button>

@@ -8,7 +8,7 @@ let win
 
 function createWindow () {
   // 创建浏览器窗口。
-  win = new BrowserWindow({width: 900, height: 500, frame: false})
+  win = new BrowserWindow({width: 400, height: 450, frame: false})
   win.once('ready-to-show', () => {
     win.show()
   })
@@ -75,8 +75,24 @@ ipcMain.on('window-close', () => {
   if (win != null) {
     win.close();
   }
-})
+});
 
+ipcMain.on('window-main-show', ()=>{
+  if (win != null) {
+    var bounds = win.getBounds();
+    bounds.width = 1350;
+    bounds.height = 750;
+    bounds.x = 100;
+    bounds.y = 100;
+    win.setBounds(bounds,true);
+  }
+});
+
+ipcMain.on('window-minimize', () => {
+  if (win != null) {
+    win.minimize()
+  }
+})
 
 // 在这文件，你可以续写应用剩下主进程代码。
 // 也可以拆分成几个文件，然后用 require 导入。

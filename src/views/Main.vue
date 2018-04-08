@@ -43,7 +43,7 @@
                     <div class="layout-logo">综合舆情管理平台</div>
                     <div class="layout-button">
                         <ButtonGroup>
-                            <Button type="text" style="color:#FFF;-webkit-app-region: no-drag;">
+                            <Button type="text" style="color:#FFF;-webkit-app-region: no-drag;" @click="windowMinimize">
                                 <Icon type="minus-round"></Icon>
                             </Button>
                             <Button type="primary" style="color:#FFF;-webkit-app-region: no-drag; border-radius: 0" @click="windowClose">
@@ -83,6 +83,9 @@
         methods : {
             windowClose () {
                 Hub.$emit('window-close');
+            },
+            windowMinimize() {
+                Hub.$emit('window-minimize');
             }
         },
         components: {
