@@ -8,11 +8,11 @@ import store from './store';
 import Util from './libs/util';
 import App from './app.vue';
 import 'iview/dist/styles/iview.css';
-//import ElectronEvt from './libs/ElectronEvt';
+import ElectronEvt from './libs/ElectronEvt';
 
 Vue.use(VueRouter);
 Vue.use(iView);
-axios.defaults.baseURL = '/api';//'http://119.28.193.146/';
+axios.defaults.baseURL = 'http://119.28.193.146/';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 Vue.prototype.axios = axios;
 
@@ -76,4 +76,4 @@ new Vue({
     }
 });
 window.Hub = new Vue(); //创建事件中心
-//ElectronEvt.registerListener();
+ElectronEvt.registerListener();

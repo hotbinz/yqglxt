@@ -5,8 +5,10 @@ node_modules/
 .project
 app/dist
 app/dist/*
+app/resource/*
 src/config/*.tmp
 src/config/env.js
 /index.html
 /index_prod.html
 /app.asar
+/build/*

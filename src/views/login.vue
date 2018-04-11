@@ -70,17 +70,29 @@
                 </Form>
             </Content>
       </Layout>
-      
-  </div>
+      <Modal
+        v-model="checkUpdate"
+        title="对话框标题"
+        :loading="isUpdate"
+        @on-ok="asyncOK">
+        <p>{{tips}}</p>
+        <Progress :percent="downloadPercent"></Progress>
+    </Modal>
+  </div>  
 </template>
 
 <script>
+    import { ipcRenderer } from "electron";
     export default {
         data() {
             return {
                 isloging:false,
                 iserror:false,
                 errorMsg:'',
+                tips:'',
+                downloadPercent:0,
+                checkUpdate: false,
+                isUpdate:false,
                 formData: {
                     'username':this.$store.state.user.username,
                     'password':this.$store.state.user.password,
@@ -95,6 +107,19 @@
                     ]
                 },
             }
+        },
+        mounted() {
+            //检查更新
+            ipcRenderer.send("checkForUpdate");
+            ipcRenderer.on("message", (event, text) => {
+                this.tips = text;
+            });
+            ipcRenderer.on("downloadProgress", (event, progressObj)=> {
+                this.downloadPercent = progressObj.percent || 0;
+            });
+            ipcRenderer.on("isUpdateNow", () => {
+                this.checkUpdate = true;
+            });
         },
         methods: {
             handleLogin(name) {
@@ -116,6 +141,7 @@
                                     this.$store.commit('setUserInfo', {username:'',password:''});
                                 }                                                     
                                 Hub.$emit('window-main-show');
+                                ipcRenderer.removeAll(["message", "downloadProgress", "isUpdateNow"]);
                                 this.$router.push({path:"/ThemeManager"});
                             }
                             else {
@@ -137,6 +163,9 @@
             },
             windowMinimize() {
                 Hub.$emit('window-minimize');
+            },
+            asyncOK() {
+                ipcRenderer.send("isUpdateNow");
             }
         }
     }

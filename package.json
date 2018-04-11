@@ -7,8 +7,10 @@
     "init": "webpack --progress --config webpack.dev.config.js",
     "dev": "webpack-dev-server --content-base ./ --open --inline --hot --compress --history-api-fallback --config webpack.dev.config.js",
     "build": "webpack --progress --hide-modules --config webpack.prod.config.js",
-    "packager": "electron-packager ./app tfyManager --win --out ../ElectronApp --arch=x64 --version=0.0.1",
-    "start": "electron ."
+    "packager": "electron-packager ./app tfyManager1 --win --out ../ElectronApp --arch=x64 --version=0.0.1",
+    "pack": "electron-builder --dir",  
+    "dist": "electron-builder" ,
+    "start": "electron app"
   },
   "repository": {
     "type": "git",
@@ -19,7 +21,9 @@
   "dependencies": {
     "vue": "^2.2.6",
     "vue-router": "^2.2.1",
-    "iview": "^2.0.0-rc.8"
+    "iview": "^2.0.0-rc.8",
+    "electron-builder": "^20.8.1",
+    "electron-updater": "^2.21.4"
   },
   "devDependencies": {
     "autoprefixer-loader": "^2.0.0",
@@ -33,6 +37,7 @@
     "babel-runtime": "^6.11.6",
     "css-loader": "^0.23.1",
     "electron": "^1.8.4",
+    "electron-updater": "^2.21.4",
     "extract-text-webpack-plugin": "^2.0.0",
     "file-loader": "^0.8.5",
     "html-loader": "^0.3.0",
@@ -57,5 +62,29 @@
   "bugs": {
     "url": "https://github.com/iview/iview-project/issues"
   },
-  "homepage": "https://www.iviewui.com"
+  "homepage": "https://www.iviewui.com",
+  "build": {
+    "productName": "舆情管理系统",
+    "appId": "yqglxt",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "resource/**/*",
+      "node_modules/**/*",
+      "index.js",
+      "package.json"
+    ],
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://127.0.0.1/download/${os}/${arch}"
+      }
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "build/icons/icon.ico",
+      "artifactName": "${productName}_setup_${version}.${ext}"
+    }
+  }
 }
