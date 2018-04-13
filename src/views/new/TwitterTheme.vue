@@ -46,25 +46,25 @@
 }
 </style>
 <template>
-    <Form ref="newForm" :model="formItem" :label-width="80"  :rules="ruleValidate" style="padding:20px;">
-        <Form-item label="创建模式" style="margin-bottom:5px;">
-            <Radio-group v-model="formItem.model">
-                <Radio label="have">已有推文</Radio>
-                <Radio label="new">新推文</Radio>
+    <Form ref="newForm" :model="formData" :label-width="80"  :rules="ruleValidate" style="padding:20px;">
+        <Form-item label="创建模式" prop="mode" style="margin-bottom:5px;">
+            <Radio-group v-model="formData.mode">
+                <Radio label="1">已有推文</Radio>
+                <Radio label="2">新推文</Radio>
             </Radio-group>
         </Form-item>
-        <FormItem label="推文地址"  prop="url" :class="formItem.model=='have' ? 'show': 'hidden'">
-            <Input v-model="formItem.url" placeholder="请输入twitter主题地址"></Input>
+        <FormItem label="推文地址"  prop="url" :class="formData.mode=='1' ? 'show': 'hidden'">
+            <Input v-model="formData.url" placeholder="请输入twitter主题地址"></Input>
         </FormItem>
-        <FormItem label="执行帐号" prop="account" :class="formItem.model=='have' ? 'hidden': 'show'">
-            <Select v-model="formItem.account">
+        <FormItem label="执行帐号" prop="account" :class="formData.mode=='1' ? 'hidden': 'show'">
+            <Select v-model="formData.account">
                 <Option v-for="item in userList" :value="item.value" :key="item.value">{{ item.label }}</Option>
             </Select>
         </FormItem>
-        <Form-item label="正文" prop="content" :class="formItem.model=='have' ? 'hidden': 'show'">
-            <Input v-model="formItem.content" type="textarea" :autosize="{minRows: 5,maxRows: 5}" placeholder="请输入..."></Input>
+        <Form-item label="正文内容" prop="content" :class="formData.mode=='1' ? 'hidden': 'show'">
+            <Input v-model="formData.content" type="textarea" :autosize="{minRows: 5,maxRows: 5}" placeholder="请输入..."></Input>
         </Form-item>
-        <FormItem label="请选择附件" :class="formItem.model=='have' ? 'hidden': 'show'" style="margin-bottom:5px;">
+        <FormItem label="请选择附件" :class="formData.mode=='1' ? 'hidden': 'show'" style="margin-bottom:5px;">
             <div class="demo-upload-list" v-for="item in uploadList" :key="item.url">
                 <img :src="item.url">
                 <div class="demo-upload-list-cover">
@@ -75,7 +75,6 @@
                 ref="upload"
                 :show-upload-list="false"
                 :format="['jpg','jpeg','png']"
-                :on-exceeded-size="handleMaxSize"
                 :before-upload="handleBeforeUpload"
                 type="drag"
                 action=""
@@ -102,13 +101,18 @@
                     }
                 ],
                 submiting:false,
-                formItem: {
-                    model: 'have',
+                formData: {
+                    mode: '1',
                     account: 0,
+                    type:'1',
+                    source:'1',
                     content: '',
                     url: ''
                 },
                 ruleValidate: {
+                    mode: [
+                        { required: true, message: '创建模式不能为空', trigger: 'change' }
+                    ],
                     url: [
                         { required: true, message: '姓名不能为空', trigger: 'blur' }
                     ],
@@ -123,6 +127,7 @@
             }
         },
         mounted() {
+            // 获取可用用户列表
             this.axios.get("/account/twitter/list.html").then((response)=>{
                 for (let user of response.data.datas) {
                     var tmp = new Object()
@@ -140,28 +145,35 @@
                 window.close();
             },
             handleSubmit(name) {
-                if(this.formItem.model == 'have') {
-                    this.$refs[name].validateField('url',(valid) => {
+                // 已有推文
+                if(this.formData.mode == '1') {
+                    this.$refs[name].validateField('url', (valid) => {
                         if (!valid) {
-                            this.submiting = true;
-                            this.submit({"url":this.formItem.url})
-                        }
+                            this.submiting = true
+                            this.submit(this.formData)
+                        } 
+                        else 
+                            this.$Message.error('表单验证失败!');
+                        
                     });
                 }
+                // 新推文：1. 先创建一个推文任务；2. 再作为一个已有推文创建
                 else {
-                    this.$refs[name].validateField('account', (accountValid)=>{
+                    this.$refs[name].validateField('account',(accountValid) => {
                         if(!accountValid)
-                        this.$refs[name].validateField('content',(contentValid)=>{
-                            if (!contentValid) {
+                            this.$refs[name].validateField('content',(contentValid) => {
+                            if(!contentValid) {
                                 this.submiting = true;
                                 let data = new FormData();
-                                data.append('content', this.formItem.content);
-                                data.append('account', this.formItem.account);
+                                data.append('mode',this.formData.mode);
+                                data.append('url',this.formData.url);
+                                data.append('source',this.formData.source);
+                                data.append('type',this.formData.type);
+                                data.append('content', this.formData.content);
+                                data.append('account', this.formData.account);
                                 data.append('file', this.uploadList[0]);
-                                // 先创建一个任务
-                                this.axios.post("/task/create_twitter.html",data).then((response)=>{
+                                this.axios.post("/task/create.html",data).then((response) => {
                                     if (response.data.result == 1) {
-                                        // 再新建一个主题
                                         this.submit({"url": response.data.status_url})
                                     }
                                     else
@@ -171,11 +183,14 @@
                                         });  
                                 });
                             }
+                            else 
+                                this.$Message.error('表单验证失败!');
                         })
-                    });
+                    })
                 }
             },
             submit(data) {
+                debugger
                 this.axios.post("/theme/twitter/save.html", data).then((response)=>{
                     this.submiting = false;
                     if(response.data.result == 1) {

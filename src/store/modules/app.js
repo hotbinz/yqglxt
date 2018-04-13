@@ -29,6 +29,12 @@ const app = {
             localStorage.removeItem('token');
             state.token = null
         },
+        resetUserSetting(state) {
+            state.user.twitter.consumer_key = '';
+            state.user.twitter.consumer_secret = '';
+            state.user.twitter.access_token = '';
+            state.user.twitter.access_token_secret = '';
+        }
     }
 }
-export default app;
+export default app

@@ -48,7 +48,7 @@
             </div>
             <Card :bordered="false" v-for="(item,index) in data" :key="item.name">                           
                 <p slot="title" class="hader-titile" style="text-align: right;">                      
-                    {{item.nickname}} <a :href="'http://www.twitter.com/' + item.name" target="_blank">@{{item.name}}</a>
+                    {{item.nickname}} <a :href="{$route.params.type == 'twitter' ? 'http://www.twitter.com/' + item.name:'http://www.youtube.com'}" target="_blank">@{{item.name}}</a>
                     <Tooltip>
                         <Icon :type="item.is_auth ? 'checkmark-circled' : 'alert-circled'" :style="{color:item.is_auth ? 'green' : 'red'}"></Icon>
                         <div slot="content" :class="item.is_auth ? '' : 'tooltip-inner1s'">
@@ -65,7 +65,7 @@
                         </Button>
                     </div>
                     <div style="float:right;">        
-                        <Button type="ghost" shape="circle" size="small" title="修改" icon="compose" ></Button>
+                        <Button type="ghost" shape="circle" size="small" title="修改" :disabled="item.is_ban ? true : false" icon="compose" @click="updateUser(item.id)"></Button>
                         <Button type="ghost" shape="circle" size="small" title="删除" @click="deleteUser(item.id, index)" icon="ios-trash-outline"></Button>
                         <Button type="ghost" shape="circle" size="small" title="同步" :loading="item.syncing" @click="sycnInfo(item, index)" icon="ios-loop-strong"></Button> 
                     </div>
@@ -73,7 +73,7 @@
                 
             </Card>
         </Content>
-        <Footer class="layout-footer"><Page :total="total" size="small" show-total></Page></Footer>
+        <!-- <Footer class="layout-footer"><Page :total="total" size="small" show-total></Page></Footer> -->
         <Modal v-model="modal_delete" width="260">
             <p slot="header" style="color:#f60;text-align:center">
                 <Icon type="information-circled"></Icon>
@@ -139,6 +139,8 @@
                 var that = this;
                 win.onbeforeunload = () => {
                     that.getList();    
+                    this.$store.commit('resetUserSetting');
+                    this.$store.commit('resetUserInfo');
                 };
                 
             },
@@ -153,7 +155,7 @@
             setToggle(item, index) {
                 this.$set(this.data[index],'toggleing', true);
                 var action = (item.is_ban) ? "enable" : "disabled";                
-                this.axios.post("/account/twitter/"+action+".html",{"id":item.id}).then((response)=>{
+                this.axios.post("/account/"+ this.$route.params.type +"/"+action+".html",{"id":item.id}).then((response)=>{
                     this.$set(this.data[index],'toggleing', false);
                     this.data[index].is_ban = (item.is_ban) ? 0 : 1;
                 });
@@ -161,7 +163,7 @@
             //同步帐号信息
             sycnInfo(item, index) {                
                 this.$set(this.data[index],'syncing', true);
-                this.axios.post("/account/twitter/sync.html",{"id":item.id}).then((response)=>{
+                this.axios.post("/account/"+ this.$route.params.type +"/sync.html",{"id":item.id}).then((response)=>{
                     this.$set(this.data[index],'syncing', false);
                     if(response.data.result == 1) {
                         this.$Notice.success({
@@ -185,7 +187,7 @@
             },
             ActionDel(id, index) {
                 this.modal_loading = true;
-                this.axios.post("/account/twitter/delete.html",{"id":this.$Modal.id}).then((response)=>{
+                this.axios.post("/account/"+ this.$route.params.type +"/delete.html",{"id":this.$Modal.id}).then((response)=>{
                     if(response.data.result == 1){
                         this.modal_delete = false;    
                         this.modal_loading = false;
@@ -198,9 +200,30 @@
                         });                 
                 })
             },
-            // 更新用户
-            updateUser() {
-                
+            // 更新用户：首先查询账号的信息
+            updateUser(id) {
+                this.axios.get("/account/"+ this.$route.params.type +"/load.html?id="+id).then((response)=>{
+                    if(response.data.result == 1){
+                        this.$store.commit('setUserInfo',{
+                            id : response.data.data.id, 
+                            username : response.data.data.name,
+                            password : response.data.data.password
+                        })
+                        this.$store.commit('setUserSetting', {
+                                consumer_key : response.data.data.consumer_key,
+                                consumer_secret : response.data.data.consumer_secret,
+                                access_token : response.data.data.access_token,
+                                access_token_secret : response.data.data.access_token_secret
+                            }   
+                        );
+                        this.NewEvent()
+                    }
+                    else 
+                        this.$Notice.error({
+                            duration:2,
+                            title: response.data.msg
+                        });                 
+                })
             },
             searchUser() {
                 this.getList()

@@ -172,28 +172,30 @@
                         width: '100px',
                         className: 'a',
                         render: (h, params) => {
-                            let operations = [
-                                h('Button',{
-                                    style: {
-                                        color: "#4a90e2"
-                                    },
-                                    props: {
-                                        type: 'text',
-                                        shape: 'circle',
-                                        size: "small",
-                                        icon: 'social-twitter',
-                                    },
-                                    attrs: {
-                                        title: '查看结果'
-                                    },
-                                    on: {
-                                        click: () => {
-                                            window.open(params.row.status_url)
+                            let operations = []
+                            // Twitter
+                            if (params.row.status_url) {
+                                operations.push(h('Button',
+                                    {
+                                        style: {
+                                            color: "#4a90e2"
+                                        },
+                                        props: {
+                                            type: 'text',
+                                            shape: 'circle',
+                                            size: "small",
+                                            icon: 'social-twitter',
+                                        },
+                                        attrs: {
+                                            title: '查看结果'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                window.open(params.row.status_url)
+                                            }
                                         }
-                                    }
-                                }) 
-                            ]
-                            if (params.row.type == 2 || params.row.type == 3) {
+                                    }))
+                                if (params.row.type == 2 || params.row.type == 3) {
                                 operations.push(h('Button',
                                     {
                                         style: {
@@ -207,6 +209,30 @@
                                         },
                                         attrs: {
                                             title: '查看原始推文'
+                                        },
+                                        on: {
+                                            click: () => {
+                                                window.open(params.row.reply_url)
+                                            }
+                                        }
+                                    }))
+                            }
+                            }
+                            // YouTube
+                            else {
+                                operations.push(h('Button',
+                                    {
+                                        style: {
+                                            color: "#4a90e2"
+                                        },
+                                        props: {
+                                            type: 'text',
+                                            shape: 'circle',
+                                            size: "small",
+                                            icon: 'social-youtube',
+                                        },
+                                        attrs: {
+                                            title: '查看Youtube视频'
                                         },
                                         on: {
                                             click: () => {
@@ -240,7 +266,11 @@
             },
             NewEvent(item) {
                 var type = this.$route.params.type;
-                window.open("#/New/"+type+"Task?type=" + item,"modal" ,"width=500,height=500,resizable=false");
+                let win = window.open("#/New/"+type+"Task?type=" + item,"modal" ,"width=500,height=500,resizable=false");
+                var that = this;
+                win.onbeforeunload = () => {
+                   that.getList();    
+                };
             },
             pageChange(page) {
                 this.getList('paging')

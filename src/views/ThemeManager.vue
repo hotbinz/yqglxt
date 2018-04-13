@@ -223,29 +223,22 @@
         },
         methods:{
             getList(type) {
-                //先登录再取
-                ///this.axios.post("/login.html",{username:'admin@ovio.com',password: 'Ovio123<>?'}).then((response)=>{
-                    //if(response.data.result == 1) {
-                        let param = 'size=' + this.page.pageSize + '&type=json'
-                        if (type == 'paging' && this.page.current != 1) {
-                            param += '&last=' + this.page.minId
-                        }
-                        if (this.searchVal != '') {
-                            param += '&name=' + this.searchVal
-                        }
-                        this.axios.get("/theme/twitter/list.html?"+param).then((gdata)=>{
-                            this.loading = false;
-                            // 翻页操作，不更新total
-                            if (type != 'paging') {
-                                this.page.total = gdata.data.total;
-                            }
-                            this.data = gdata.data.datas;
-                            this.page.minId = gdata.data.total > 0?this.data[this.data.length - 1].id : 0;
-                        });
-                   // }                
-                //}).catch(function (response) {
-                    //console.log(response);
-                //});
+                let param = 'size=' + this.page.pageSize + '&type=json'
+                if (type == 'paging' && this.page.current != 1) {
+                    param += '&last=' + this.page.minId
+                }
+                if (this.searchVal != '') {
+                    param += '&name=' + this.searchVal
+                }
+                this.axios.get("/theme/twitter/list.html?"+param).then((gdata)=>{
+                    this.loading = false;
+                    // 翻页操作，不更新total
+                    if (type != 'paging') {
+                        this.page.total = gdata.data.total;
+                    }
+                    this.data = gdata.data.datas;
+                    this.page.minId = gdata.data.total > 0?this.data[this.data.length - 1].id : 0;
+                });
             },
             NewTwitterTheme() {
                 let win = window.open("#/New/TwitterTheme","modal" ,"width=400,height=400,resizable=false");
@@ -286,6 +279,10 @@
                         this.modal_delete = false    
                         this.modal_loading = false
                         this.data.splice(this.$Modal.index, 1)
+                        this.$Notice.success({
+                            duration:2,
+                            title: response.data.msg
+                        });
                     }
                     else {
                         this.$Notice.error({
@@ -303,7 +300,7 @@
             },
             showMore(index, id, url) {
                 this.modal_show = true
-                this.axios.get("/theme/twitter/load.html?url="+url).then((response)=>{
+                this.axios.get("/theme/twitter/load.html?id="+id).then((response)=>{
                     if (response.data.result == 1) {
                         this.showData = response.data
                     }

@@ -48,8 +48,9 @@
             return {
                 submiting:false,
                 formData: {
-                    name: '',
-                    password: '',
+                    id: this.$store.state.user.id?this.$store.state.user.id:0,
+                    name: this.$store.state.user.username,
+                    password: this.$store.state.user.password,
                     consumer_key: this.$store.state.app.user.twitter.consumer_key,
                     consumer_secret: this.$store.state.app.user.twitter.consumer_secret,
                     access_token: this.$store.state.app.user.twitter.access_token,
@@ -82,13 +83,7 @@
                 this.$refs[name].validate((valid) => {
                     if (valid) {
                         this.submiting = true;
-                        this.$store.commit('setUserSetting', {
-                                consumer_key : this.formData.consumer_key,
-                                consumer_secret : this.formData.consumer_secret,
-                                access_token : this.formData.access_token,
-                                access_token_secret : this.formData.access_token_secret
-                            }   
-                        );
+                        
                         this.axios.post("/account/twitter/save.html", this.formData).then((response)=>{
                             this.submiting = false;
                             if(response.data.result == 1) {
@@ -99,6 +94,8 @@
                                     duration:2,
                                     title: response.data.msg
                                 });      
+                            // this.$store.commit('resetUserSetting');
+                            // this.$store.commit('resetUserSetting');
                         });
                     } else {
                         this.$Message.error('表单验证失败!');

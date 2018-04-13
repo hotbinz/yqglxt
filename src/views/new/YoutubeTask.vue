@@ -31,8 +31,8 @@
                 </Radio>
             </RadioGroup>
         </FormItem>
-        <FormItem label="内容" prop="content" :class="this.$route.query.type=='reply' ? 'show': 'hidden'">
-            <Input v-model="formData.content" type="textarea" :autosize="{minRows: 5,maxRows: 10}" placeholder="请输入任务内容..."></Input>
+        <FormItem label="正文内容" prop="content" :class="this.$route.query.type=='reply' ? 'show': 'hidden'">
+            <Input v-model="formData.content" type="textarea" :autosize="{minRows: 5,maxRows: 10}" placeholder="请输入正文内容..."></Input>
         </FormItem>
         <FormItem>
             <Button type="primary" @click="handleSubmit('newForm')">提交</Button>
@@ -46,17 +46,21 @@
             return {
                 formData: {
                     name: '',
-                    account: '0',
+                    account: 0,
                     reply_url: '',
                     rate: '1',
-                    content: ''
+                    content: '',
+                    source: '2',
                 },
                 ruleValidate: {
+                    name: [
+                        { required: true, message: '任务名称不能为空', trigger: 'blur' }
+                    ],
                     account: [
-                        { required: true, message: '用户不能为空', trigger: 'change' }
+                        { type:'number', required: true, message: '用户不能为空', trigger: 'change' }
                     ],
                     content: [
-                        { required: this.$route.query.type=='reply', message: '正文不能为空', trigger: 'blur' }
+                        { required: this.$route.query.type=='reply', message: '正文内容不能为空', trigger: 'blur' }
                     ],
                     reply_url: [
                         { required: true, message: '视频地址不能为空', trigger: 'blur' }
@@ -67,7 +71,7 @@
                 },
                 userList: [
                     {
-                        value: '0',
+                        value: 0,
                         label: '随机用户'
                     },
                 ],
@@ -76,6 +80,19 @@
                     "reply": "task/reply_youtube.html",
                 }
             }
+        },
+        mounted() {
+            // 获取可用用户
+            this.axios.get("/account/youtube/list.html").then((response)=>{
+                for (let user of response.data.datas) {
+                    if (user.is_auth == 1) {
+                        this.userList.push({
+                            label:user.name,
+                            value:user.id,
+                        })
+                    }
+                }
+            });
         },
         methods : {
             windowClose () {
@@ -89,10 +106,18 @@
                         let data = new FormData();
                         data.append('name', this.formData.name);
                         data.append('content', this.formData.content);
+                        data.append('source', this.formData.source);
                         data.append('rate', this.formData.rate);
                         data.append('account', this.formData.account);
                         data.append('reply_url', this.formData.reply_url);
-                        this.axios.post(this.urls[type], data).then((response)=>{
+                        if (type == 'vote') {
+                            data.append('type','5')
+                            this.formData.type = '5'
+                        }
+                        else 
+                            //data.append('type','2')
+                            this.formData.type = '2'
+                        this.axios.post(this.urls[type], this.formData).then((response)=>{
                             this.submiting = false;
                             if(response.data.result == 1) {
                                 window.close();
