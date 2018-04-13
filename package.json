@@ -8,8 +8,8 @@
     "dev": "webpack-dev-server --content-base ./ --open --inline --hot --compress --history-api-fallback --config webpack.dev.config.js",
     "build": "webpack --progress --hide-modules --config webpack.prod.config.js",
     "packager": "electron-packager ./app tfyManager1 --win --out ../ElectronApp --arch=x64 --version=0.0.1",
-    "pack": "electron-builder --dir",  
-    "dist": "electron-builder" ,
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
     "start": "electron app"
   },
   "repository": {
@@ -19,11 +19,10 @@
   "author": "Aresn",
   "license": "MIT",
   "dependencies": {
-    "vue": "^2.2.6",
-    "vue-router": "^2.2.1",
+    "electron-updater": "^2.21.4",
     "iview": "^2.0.0-rc.8",
-    "electron-builder": "^20.8.1",
-    "electron-updater": "^2.21.4"
+    "vue": "^2.2.6",
+    "vue-router": "^2.2.1"
   },
   "devDependencies": {
     "autoprefixer-loader": "^2.0.0",
@@ -73,7 +72,8 @@
       "resource/**/*",
       "node_modules/**/*",
       "index.js",
-      "package.json"
+      "package.json",
+      "index_prod.html"
     ],
     "publish": [
       {
@@ -82,7 +82,9 @@
       }
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "build/icons/icon.ico",
       "artifactName": "${productName}_setup_${version}.${ext}"
     }

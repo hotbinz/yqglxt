@@ -8,7 +8,6 @@ import store from './store';
 import Util from './libs/util';
 import App from './app.vue';
 import 'iview/dist/styles/iview.css';
-import ElectronEvt from './libs/ElectronEvt';
 
 Vue.use(VueRouter);
 Vue.use(iView);
@@ -76,4 +75,5 @@ new Vue({
     }
 });
 window.Hub = new Vue(); //创建事件中心
+import ElectronEvt from './libs/ElectronEvt';
 ElectronEvt.registerListener();

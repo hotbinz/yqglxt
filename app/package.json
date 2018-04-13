@@ -2,11 +2,14 @@
   "productName": "舆情管理系统",
   "name": "yqglxt",
   "version": "1.0.0",
-  "description": "",
+  "description": "1.0.1版本，用于修复XXX",
   "main": "index.js",
   "author": "",
   "license": "ISC",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"    
+  },
+  "dependencies": {
+    "electron-updater": "^2.21.4"
   }
 }

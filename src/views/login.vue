@@ -28,6 +28,12 @@
 .noSelectText {
     -webkit-user-select: none;
 }
+ .demo-spin-container{
+    	display: inline-block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
 </style>
 <template>
   <div class="layout">
@@ -69,30 +75,45 @@
                     <Alert type="error" show-icon v-show="iserror">{{errorMsg}}</Alert>
                 </Form>
             </Content>
+             <div class="demo-spin-container">
+                <Spin v-if="autoUpdate.checkUpdate">                    
+                </Spin>
+            </div>
       </Layout>
+     
       <Modal
-        v-model="checkUpdate"
-        title="对话框标题"
-        :loading="isUpdate"
+        v-model="autoUpdate.isUpdate"
+        title="程序有更新"
+        :loading="isDownload"
+        :closable="false"
+         :mask-closable="false"
+         :ok-text='autoUpdate.okText'
+         @on-cancel="cancel"
         @on-ok="asyncOK">
-        <p>{{tips}}</p>
-        <Progress :percent="downloadPercent"></Progress>
+        <p>{{autoUpdate.tips}}</p>
+        <p>{{autoUpdate.info}}</p>
+        <Progress :percent="autoUpdate.downloadPercent"></Progress>
     </Modal>
   </div>  
 </template>
 
 <script>
-    import { ipcRenderer } from "electron";
+    //import { ipcRenderer } from "electron";
     export default {
         data() {
             return {
                 isloging:false,
                 iserror:false,
                 errorMsg:'',
-                tips:'',
-                downloadPercent:0,
-                checkUpdate: false,
-                isUpdate:false,
+                isDownload:true,
+                autoUpdate:{
+                    tips:'',
+                    info:'',
+                    okText:'是',
+                    downloadPercent:0,
+                    checkUpdate: true,
+                    isUpdate:false                    
+                },
                 formData: {
                     'username':this.$store.state.user.username,
                     'password':this.$store.state.user.password,
@@ -110,15 +131,24 @@
         },
         mounted() {
             //检查更新
-            ipcRenderer.send("checkForUpdate");
-            ipcRenderer.on("message", (event, text) => {
-                this.tips = text;
+            Hub.$emit('ipcSend','checkForUpdate');
+            Hub.$on("message", (text)=>{
+                this.autoUpdate.tips = text;
             });
-            ipcRenderer.on("downloadProgress", (event, progressObj)=> {
-                this.downloadPercent = progressObj.percent || 0;
+             Hub.$on("downloadProgress", (progressObj)=>{
+                  this.autoUpdate.okText = "下载中.";
+                 this.autoUpdate.downloadPercent = parseInt(progressObj.percent) || 0;    
+                 if(this.autoUpdate.downloadPercent >= 100) {
+                      Hub.$emit('ipcSend','isUpdateNow');
+                 }       
             });
-            ipcRenderer.on("isUpdateNow", () => {
-                this.checkUpdate = true;
+            Hub.$on("isUpdateNoAvailable", ()=>{
+                this.autoUpdate.checkUpdate = false;
+            });
+            Hub.$on("isUpdateAvailable", (info)=>{
+                 this.autoUpdate.info = info.releaseNotes
+                 this.autoUpdate.checkUpdate = false;
+                 this.autoUpdate.isUpdate = true;
             });
         },
         methods: {
@@ -140,8 +170,7 @@
                                 {
                                     this.$store.commit('setUserInfo', {username:'',password:''});
                                 }                                                     
-                                Hub.$emit('window-main-show');
-                                ipcRenderer.removeAll(["message", "downloadProgress", "isUpdateNow"]);
+                                Hub.$emit('ipcSend','window-main-show');
                                 this.$router.push({path:"/ThemeManager"});
                             }
                             else {
@@ -159,13 +188,16 @@
                 })
             },
             windowClose () {
-                Hub.$emit('window-close');
+                Hub.$emit('ipcSend','window-close');
             },
             windowMinimize() {
-                Hub.$emit('window-minimize');
+                Hub.$emit('ipcSend','window-minimize');
             },
             asyncOK() {
-                ipcRenderer.send("isUpdateNow");
+                Hub.$emit('ipcSend','isUpdateNow');
+            },
+            cancel() {
+
             }
         }
     }

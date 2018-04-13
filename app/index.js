@@ -1,5 +1,5 @@
 const {app, BrowserWindow, ipcMain} = require('electron')
-const { autoUpdater } = require("electron-updater")
+const {autoUpdater} = require("electron-updater")
 const path = require('path')
 const url = require('url')
 
@@ -16,13 +16,13 @@ function createWindow () {
 
   // 然后加载应用的 index.html。
   win.loadURL(url.format({
-    pathname: path.join(__dirname, 'index_prod.html'),
+    pathname: path.join(__dirname, './index_prod.html'),
     protocol: 'file:',
     slashes: true
   }))
 
   // 打开开发者工具。
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
   // 当 window 被关闭，这个事件会被触发。
   win.on('closed', () => {
@@ -101,50 +101,49 @@ ipcMain.on('window-minimize', () => {
 // 也可以拆分成几个文件，然后用 require 导入。
 
 // 检测更新，在你想要检查更新的时候执行，renderer事件触发后的操作自行编写
-function updateHandle() {
-  let message = {
-    error: '检查更新出错',
-    checking: '正在检查更新……',
-    updateAva: '检测到新版本，正在下载……',
-    updateNotAva: '现在使用的就是最新版本，不用更新',
-  };
- 
-  autoUpdater.setFeedURL("http://127.0.0.1/download");
-  autoUpdater.on('error', function (error) {
-    sendUpdateMessage(message.error)
-  });
-  autoUpdater.on('checking-for-update', function () {
-    sendUpdateMessage(message.checking)
-  });
-  autoUpdater.on('update-available', function (info) {
-    sendUpdateMessage(message.updateAva)
-  });
-  autoUpdater.on('update-not-available', function (info) {
-    sendUpdateMessage(message.updateNotAva)
-  });
- 
-  // 更新下载进度事件
-  autoUpdater.on('download-progress', function (progressObj) {
-    win.webContents.send('downloadProgress', progressObj)
-  })
-  autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
-    ipcMain.on('isUpdateNow', (e, arg) => {
-      console.log(arguments);
-      console.log("开始更新");
-      //some code here to handle event
-      autoUpdater.quitAndInstall();
-    });
- 
-    win.webContents.send('isUpdateNow')
-  });
- 
-  ipcMain.on("checkForUpdate",()=>{
-      //执行自动更新检查
-      autoUpdater.checkForUpdates();
-  });
-}
- 
+
+let message = {
+  error: '检查更新出错',
+  checking: '正在检查更新……',
+  updateAva: '检测到新版本，正在下载……',
+  updateNotAva: '现在使用的就是最新版本，不用更新',
+};
+//autoUpdater.autoDownload = false;
+autoUpdater.setFeedURL("https://raw.githubusercontent.com/hotbinz/update/master/");//https://gitee.com/huobin/update/raw/master/
+autoUpdater.on('error', function (error) {
+  sendUpdateMessage(message.error)
+});
+autoUpdater.on('checking-for-update', function () {
+  sendUpdateMessage(message.checking)
+});
+autoUpdater.on('update-available', function (info) {
+  sendUpdateMessage(message.updateAva)
+  win.webContents.send('ipcReceive', 'isUpdateAvailable', info)
+});
+autoUpdater.on('update-not-available', function (info) {
+  sendUpdateMessage(message.updateNotAva)
+  win.webContents.send('ipcReceive', 'isUpdateNoAvailable')
+});
+
+// 更新下载进度事件
+autoUpdater.on('download-progress', function (progressObj) {
+  win.webContents.send('ipcReceive', 'downloadProgress', progressObj)
+})
+autoUpdater.on('update-downloaded', function (event, releaseNotes, releaseName, releaseDate, updateUrl, quitAndUpdate) {
+  // ipcMain.on('isUpdateNow', (e, arg) => {
+  //   //some code here to handle event
+  //   autoUpdater.quitAndInstall();
+  // });
+  autoUpdater.quitAndInstall();
+  win.webContents.send("ipcReceive", 'isUpdateNow')
+});
+
+ipcMain.on("checkForUpdate",()=>{
+    //执行自动更新检查
+    autoUpdater.checkForUpdates();
+});
+
 // 通过main进程发送事件给renderer进程，提示更新信息
 function sendUpdateMessage(text) {
-  win.webContents.send('message', text)
+  win.webContents.send("ipcReceive", 'message', text)
 }
