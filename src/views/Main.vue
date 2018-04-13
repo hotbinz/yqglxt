@@ -82,10 +82,10 @@
         },
         methods : {
             windowClose () {
-                Hub.$emit('window-close');
+                Hub.$emit('ipcSend','window-close');
             },
             windowMinimize() {
-                Hub.$emit('window-minimize');
+                Hub.$emit('ipcSend','window-minimize');
             }
         },
         components: {

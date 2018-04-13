@@ -21,7 +21,7 @@
     left: 10px;
 }
 .layout-button{
-    width: 79px;
+    width: 40px;
     margin: 0 auto;
     margin-right: 0px;   
 }

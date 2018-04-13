@@ -28,6 +28,12 @@
 .noSelectText {
     -webkit-user-select: none;
 }
+ .demo-spin-container{
+    	display: inline-block;
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
 </style>
 <template>
   <div class="layout">
@@ -69,18 +75,45 @@
                     <Alert type="error" show-icon v-show="iserror">{{errorMsg}}</Alert>
                 </Form>
             </Content>
+             <div class="demo-spin-container">
+                <Spin v-if="autoUpdate.checkUpdate">                    
+                </Spin>
+            </div>
       </Layout>
-      
-  </div>
+     
+      <Modal
+        v-model="autoUpdate.isUpdate"
+        title="程序有更新"
+        :loading="isDownload"
+        :closable="false"
+         :mask-closable="false"
+         :ok-text='autoUpdate.okText'
+         @on-cancel="cancel"
+        @on-ok="asyncOK">
+        <p>{{autoUpdate.tips}}</p>
+        <p>{{autoUpdate.info}}</p>
+        <Progress :percent="autoUpdate.downloadPercent"></Progress>
+    </Modal>
+  </div>  
 </template>
 
 <script>
+    //import { ipcRenderer } from "electron";
     export default {
         data() {
             return {
                 isloging:false,
                 iserror:false,
                 errorMsg:'',
+                isDownload:true,
+                autoUpdate:{
+                    tips:'',
+                    info:'',
+                    okText:'是',
+                    downloadPercent:0,
+                    checkUpdate: true,
+                    isUpdate:false                    
+                },
                 formData: {
                     'username':this.$store.state.user.username,
                     'password':this.$store.state.user.password,
@@ -95,6 +128,28 @@
                     ]
                 },
             }
+        },
+        mounted() {
+            //检查更新
+            Hub.$emit('ipcSend','checkForUpdate');
+            Hub.$on("message", (text)=>{
+                this.autoUpdate.tips = text;
+            });
+             Hub.$on("downloadProgress", (progressObj)=>{
+                  this.autoUpdate.okText = "下载中.";
+                 this.autoUpdate.downloadPercent = parseInt(progressObj.percent) || 0;    
+                 if(this.autoUpdate.downloadPercent >= 100) {
+                      Hub.$emit('ipcSend','isUpdateNow');
+                 }       
+            });
+            Hub.$on("isUpdateNoAvailable", ()=>{
+                this.autoUpdate.checkUpdate = false;
+            });
+            Hub.$on("isUpdateAvailable", (info)=>{
+                 this.autoUpdate.info = info.releaseNotes
+                 this.autoUpdate.checkUpdate = false;
+                 this.autoUpdate.isUpdate = true;
+            });
         },
         methods: {
             handleLogin(name) {
@@ -115,7 +170,7 @@
                                 {
                                     this.$store.commit('setUserInfo', {username:'',password:''});
                                 }                                                     
-                                Hub.$emit('window-main-show');
+                                Hub.$emit('ipcSend','window-main-show');
                                 this.$router.push({path:"/ThemeManager"});
                             }
                             else {
@@ -133,10 +188,16 @@
                 })
             },
             windowClose () {
-                Hub.$emit('window-close');
+                Hub.$emit('ipcSend','window-close');
             },
             windowMinimize() {
-                Hub.$emit('window-minimize');
+                Hub.$emit('ipcSend','window-minimize');
+            },
+            asyncOK() {
+                Hub.$emit('ipcSend','isUpdateNow');
+            },
+            cancel() {
+
             }
         }
     }

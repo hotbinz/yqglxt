@@ -8,7 +8,7 @@ module.exports = {
         vendors: './src/vendors'
     },
     output: {
-        path: path.join(__dirname, './app/dist')
+        path: path.join(__dirname, './app/resource')
     },
     module: {
         rules: [

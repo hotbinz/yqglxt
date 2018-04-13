@@ -1,21 +1,12 @@
 import electron from "electron";
 let eletronEvt = {}
-eletronEvt.registerListener = function () {
-    console.info("electron");
-    //关闭窗口
-    Hub.$on("window-close", ()=>{
-        var ipc = electron.ipcRenderer;
-        ipc.send("window-close");    
+eletronEvt.registerListener = function () {    
+    var ipc = electron.ipcRenderer;
+    Hub.$on("ipcSend", (command)=>{    
+        ipc.send(command);    
     });
-    //显示主窗口
-    Hub.$on("window-main-show", ()=>{
-        var ipc = electron.ipcRenderer;
-        ipc.send("window-main-show");    
-    })
-    //窗口最小化
-    Hub.$on("window-minimize", ()=>{
-        var ipc = electron.ipcRenderer;
-        ipc.send("window-minimize");    
-    })
+    ipc.on("ipcReceive", (evt, command, val) => {     
+        Hub.$emit(command, val);
+    });    
 }
 export default eletronEvt;
