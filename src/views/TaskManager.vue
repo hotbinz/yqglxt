@@ -145,7 +145,7 @@
                         title: '执行时间',
                         key: 'time',
                         align: 'center',
-                        width: '90'
+                        width: '110'
                     }];
                 if(type == "youtube") {
                     cloumnjson.push({
@@ -191,7 +191,7 @@
                                         },
                                         on: {
                                             click: () => {
-                                                window.open(params.row.status_url)
+                                                window.open(params.row.status_url, "browser");
                                             }
                                         }
                                     }))
@@ -251,7 +251,7 @@
             getList(type) {
                 var themType = this.$route.params.type
                 this.loading = true
-                let param = 'size=' + this.page.pageSize + '&start=' + this.page.current
+                let param = 'size=' + this.page.pageSize + '&start=' + (this.page.current-1) * this.page.pageSize
                 if (this.searchVal != '') {
                     param += '&name=' + this.searchVal
                 }

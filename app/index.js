@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain} = require('electron')
+const {app, BrowserWindow, ipcMain, shell} = require('electron')
 const {autoUpdater} = require("electron-updater")
 const path = require('path')
 const url = require('url')
@@ -42,11 +42,13 @@ function createWindow () {
         resizable:(options.resizable === 'true')
       })
       event.newGuest = new BrowserWindow(options)
-      event.newGuest.loadURL(url)
-      
+      event.newGuest.loadURL(url) 
+    }
+    else if(frameName === 'browser') {
+      event.preventDefault();
+      shell.openExternal(url);
     }
   });
-
   //updateHandle();
 }
 
