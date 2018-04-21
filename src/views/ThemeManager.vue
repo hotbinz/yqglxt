@@ -58,8 +58,23 @@
                 <span>主题信息</span>
             </p>
             <div style="text-align:center">
-                <p>真的要删除这个Twitter主题吗？</p>
-                <p>Will you delete it?</p>
+                <Row>
+                    <Col span="18" push="6" style="text-align:left">
+                        {{showData.author_name}} <span style="color:#bbbec4;">@{{showData.author_screen_name}}</span> - {{showData.create_at}}
+                        <p style="line-height: 25px;">
+                             {{showData.text}}<br />
+                             <img src="showData.media" v-if="showData.media">
+                        </p>
+                        <p>
+                            <Icon type="location" v-if="showData.author_location"></Icon> {{showData.author_location}}&nbsp;&nbsp;
+                            <Icon type="arrow-return-right"></Icon> {{showData.retweet_count}}&nbsp;&nbsp;
+                            <Icon type="android-favorite-outline"></Icon> {{showData.favorite_count}}&nbsp;&nbsp;
+                        </p>
+                    </Col>
+                    <Col span="6" pull="18">
+                        <Avatar icon="person" size="large" src="showData.author_profile_image_url"/>                        
+                    </Col>
+                </Row>
             </div>
         </Modal>
     </Layout>
@@ -224,11 +239,12 @@
         methods:{
             getList(type) {
                 let param = 'size=' + this.page.pageSize + '&type=json'
-                if (type == 'paging' && this.page.current != 1) {
-                    param += '&last=' + this.page.minId
-                }
+                param += '&start=' + (this.page.current-1) * this.page.pageSize
+                // if (type == 'paging' && this.page.current != 1) {
+                //     param += '&last=' + this.page.minId
+                // }
                 if (this.searchVal != '') {
-                    param += '&name=' + this.searchVal
+                    param += '&name=' + this.searchVal                   
                 }
                 this.axios.get("/theme/twitter/list.html?"+param).then((gdata)=>{
                     this.loading = false;
@@ -299,10 +315,12 @@
                 this.getList('searching')
             },
             showMore(index, id, url) {
+                // window.open(url, "browser");
                 this.modal_show = true
-                this.axios.get("/theme/twitter/load.html?id="+id).then((response)=>{
+                this.axios.get("/theme/twitter/load.html?url=1&id="+id).then((response)=>{
                     if (response.data.result == 1) {
-                        this.showData = response.data
+                        this.showData = response.data.data
+                        console.info(this.showData);
                     }
                     else {
                         this.$Notice.error({
