@@ -48,10 +48,10 @@
             </div>
             <Card :bordered="false" v-for="(item,index) in data" :key="item.name">                           
                 <p slot="title" class="hader-titile" style="text-align: right;">                      
-                    {{item.nickname}} <a :href="{$route.params.type == 'twitter' ? 'http://www.twitter.com/' + item.name:'http://www.youtube.com'}" target="_blank">@{{item.name}}</a>
+                    {{item.nickname}} <a href="" target="_blank">@{{item.name}}</a>
                     <Tooltip>
                         <Icon :type="item.is_auth ? 'checkmark-circled' : 'alert-circled'" :style="{color:item.is_auth ? 'green' : 'red'}"></Icon>
-                        <div slot="content" :class="item.is_auth ? '' : 'tooltip-inner1s'">
+                        <div slot="content" :class="item.is_auth ?'' : 'tooltip-inner1s'">
                             {{(item.is_auth) ? '已经通过数据同步检测' : '未通过数据同步检测，暂时不能用于推特，请点击同步'}}   
                         </div>
                     </Tooltip>

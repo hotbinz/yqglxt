@@ -11,7 +11,7 @@ import 'iview/dist/styles/iview.css';
 
 Vue.use(VueRouter);
 Vue.use(iView);
-axios.defaults.baseURL = 'http://119.28.193.146/';
+axios.defaults.baseURL = '/api';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 Vue.prototype.axios = axios;
 
@@ -75,5 +75,5 @@ new Vue({
     }
 });
 window.Hub = new Vue(); //创建事件中心
-import ElectronEvt from './libs/ElectronEvt';
-ElectronEvt.registerListener();
+// import ElectronEvt from './libs/ElectronEvt';
+// ElectronEvt.registerListener();
