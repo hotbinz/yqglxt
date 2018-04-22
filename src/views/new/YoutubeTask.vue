@@ -41,6 +41,7 @@
     </Form>
 </template>
 <script>
+    import { setTimeout } from 'timers';
     export default {
         data () {
             return {
@@ -76,8 +77,8 @@
                     },
                 ],
                 urls: {
-                    "vote": "/task/vote_youtube.html",
-                    "reply": "task/reply_youtube.html",
+                    "vote": "/task/create.html",
+                    "reply": "task/create.html",
                 }
             }
         },
@@ -103,30 +104,40 @@
                     if (valid) {
                         this.submiting = true;
                         let type = this.$route.query.type
-                        let data = new FormData();
-                        data.append('name', this.formData.name);
-                        data.append('content', this.formData.content);
-                        data.append('source', this.formData.source);
-                        data.append('rate', this.formData.rate);
-                        data.append('account', this.formData.account);
-                        data.append('reply_url', this.formData.reply_url);
+                        var params = new URLSearchParams();
+                        params.append('source', this.formData.source)
+                        params.append('name', this.formData.name)
+                        
+                        params.append('account', this.formData.account)
+                        params.append('reply_url', this.formData.reply_url)
+                        params.append('content', this.formData.content)
+                        params.append('rate', this.formData.rate)
                         if (type == 'vote') {
-                            data.append('type','5')
-                            this.formData.type = '5'
+                            params.append('type', '5')
                         }
                         else 
-                            //data.append('type','2')
-                            this.formData.type = '2'
-                        this.axios.post(this.urls[type], this.formData).then((response)=>{
+                            params.append('type', '2')
+
+                        this.axios.post(this.urls[type], params).then((response)=>{
+                            let tmp1 = response.data.split("var data = ")
+                            let tmp2 = tmp1[1].split(";")
+                            let tmp3 = JSON.parse(tmp2[0].replace(/'/g, '"'))
+                            
                             this.submiting = false;
-                            if(response.data.result == 1) {
-                                window.close();
+                            if(tmp3.result == 1) {
+                                this.$Notice.success({
+                                    duration:2,
+                                    title: tmp3.msg
+                                }); 
                             }                                      
                             else
                                 this.$Notice.error({
                                     duration:2,
-                                    title: response.data.msg
-                                });      
+                                    title: tmp3.msg
+                                });    
+                            setTimeout(function(){
+                                window.close();
+                            },1000)  
                         });
                     } else {
                         this.$Message.error('表单验证失败!');
