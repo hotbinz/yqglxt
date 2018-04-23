@@ -60,7 +60,7 @@
                 data: [],
                 page: {
                     total: 0,
-                    pageSize: 10,
+                    pageSize: 9,
                     current: 1,
                     minId: 0,
                 }
@@ -102,7 +102,26 @@
                         title: '任务类型',
                         key: 'type',
                         align: 'center',
-                        width: '85'
+                        width: '85',
+                        render:(h,params) => {
+                            // Twitter
+                            if (params.row.status_url) {
+                                if (params.row.type === 1) {
+                                    return h('div','发推')
+                                }else if (params.row.type === 2) {
+                                    return h('div','回推')
+                                }else if (params.row.type === 3) {
+                                    return h('div','转推')
+                                }
+                            }
+                            else {
+                                if (params.row.type === 2) {
+                                    return h('div','留言')
+                                }else if (params.row.type === 3) {
+                                    return h('div','点赞')
+                                }
+                            }
+                        }
                     },{
                         title: '任务名称',
                         key: 'name',
@@ -282,6 +301,7 @@
         watch: {
             '$route' (to) {
                 this.data = []
+                this.searchVal = ''
                 this.getList()
             }
         }

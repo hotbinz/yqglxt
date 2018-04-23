@@ -48,10 +48,10 @@
             </div>
             <Card :bordered="false" v-for="(item,index) in data" :key="item.name">                           
                 <p slot="title" class="hader-titile" style="text-align: right;">                      
-                    {{item.nickname}} <a :href="$route.params.type == 'twitter' ? 'http://www.twitter.com/' + item.name : 'http://www.youtube.com'" target="_blank">@{{item.name}}</a>
+                    {{$route.params.type == 'twitter'?item.nickname:''}}<a :href="$route.params.type == 'twitter' ? 'http://www.twitter.com/' + item.name : 'http://www.youtube.com'" target="_blank">@{{item.name}}</a>
                     <Tooltip>
                         <Icon :type="item.is_auth ? 'checkmark-circled' : 'alert-circled'" :style="{color:item.is_auth ? 'green' : 'red'}"></Icon>
-                        <div slot="content" :class="item.is_auth ? '' : 'tooltip-inner1s'">
+                        <div slot="content" :class="item.is_auth ?'' : 'tooltip-inner1s'">
                             {{(item.is_auth) ? '已经通过数据同步检测' : '未通过数据同步检测，暂时不能用于推特，请点击同步'}}   
                         </div>
                     </Tooltip>
@@ -202,20 +202,31 @@
             },
             // 更新用户：首先查询账号的信息
             updateUser(id) {
-                this.axios.get("/account/"+ this.$route.params.type +"/load.html?id="+id).then((response)=>{
+                let type = this.$route.params.type
+                this.axios.get("/account/"+ type +"/load.html?id="+id).then((response)=>{
                     if(response.data.result == 1){
                         this.$store.commit('setUserInfo',{
                             id : response.data.data.id, 
                             username : response.data.data.name,
                             password : response.data.data.password
                         })
-                        this.$store.commit('setUserSetting', {
-                                consumer_key : response.data.data.consumer_key,
-                                consumer_secret : response.data.data.consumer_secret,
-                                access_token : response.data.data.access_token,
-                                access_token_secret : response.data.data.access_token_secret
-                            }   
-                        );
+                        if (type === 'twitter') {
+                            this.$store.commit('setTwitterUserSetting', {
+                                    consumer_key : response.data.data.consumer_key,
+                                    consumer_secret : response.data.data.consumer_secret,
+                                    access_token : response.data.data.access_token,
+                                    access_token_secret : response.data.data.access_token_secret
+                                }   
+                            );
+                        }
+                        if (type === 'youtube') {
+                            this.$store.commit('setTwitterUserSetting', {
+                                    client_secret : response.data.data.client_secret,
+                                    code : response.data.data.code,
+                                }   
+                            );
+                        }
+
                         this.NewEvent()
                     }
                     else 

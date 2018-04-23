@@ -75,5 +75,5 @@ new Vue({
     }
 });
 window.Hub = new Vue(); //创建事件中心
-import ElectronEvt from './libs/ElectronEvt';
-ElectronEvt.registerListener();
+// import ElectronEvt from './libs/ElectronEvt';
+// ElectronEvt.registerListener();
