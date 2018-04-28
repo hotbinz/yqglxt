@@ -78,7 +78,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "http://127.0.0.1/download/${os}/${arch}"
+        "url": "http://119.28.193.146/"
       }
     ],
     "win": {

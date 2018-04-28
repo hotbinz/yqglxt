@@ -130,7 +130,7 @@
                         title: '创建时间',
                         key: 'create_at',
                         align: 'center',
-                        width :'110'
+                        width :'105'
                     },
                     {
                         title: '点赞数',

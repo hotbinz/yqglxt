@@ -135,7 +135,7 @@
                         title: '执行帐号',
                         key: 'account',
                         align: 'center',
-                        width: '90'
+                        width: '180'
                     },{
                         title: '任务状态',
                         key: 'status',
@@ -164,7 +164,7 @@
                         title: '执行时间',
                         key: 'time',
                         align: 'center',
-                        width: '110'
+                        width: '105'
                     }];
                 if(type == "youtube") {
                     cloumnjson.push({

@@ -1,8 +1,8 @@
 {
   "productName": "舆情管理系统",
   "name": "yqglxt",
-  "version": "1.0.4",
-  "description": "1.0.3版本，修复youtube帐号问题",
+  "version": "1.0.6",
+  "description": "1.0.6版本，修复youtube帐号问题,及更新问题",
   "main": "index.js",
   "author": "",
   "license": "ISC",
